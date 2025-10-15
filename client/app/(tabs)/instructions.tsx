@@ -65,7 +65,7 @@ export default function Instructions() {
             <Ionicons name="chevron-back" size={22} color="#333" />
           </TouchableOpacity>
 
-          <Text style={styles.headerTitle}>How Talk to Me Works</Text>
+          <Text style={styles.headerTitle}>How GetJoan Talk Works</Text>
           <View style={{ width: 40 }} />
         </View>
 
@@ -75,7 +75,7 @@ export default function Instructions() {
           showsVerticalScrollIndicator={false}
         >
           <Text style={styles.introText}>
-            Welcome to <Text style={styles.appName}>Talk to Me</Text> —
+            Welcome to <Text style={styles.appName}>GetJoan Talk</Text> —
             your smart way to communicate quickly with your GetJoan device,
             whether by voice or with one tap.
           </Text>
