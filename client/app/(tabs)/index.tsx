@@ -31,9 +31,9 @@ export default function HomeScreen() {
   }
 
   const chatHistory = [
-    { id: "1", title: "Make my website after asking three questions" },
-    { id: "2", title: "Start local film club with custom charter" },
-    { id: "3", title: "Write script to automate daily email reports" },
+    { id: "1", title: "I will be late - 15 minutes" },
+    { id: "2", title: "Need assistance - Running late" },
+    { id: "3", title: "I will be late - 30 minutes" },
   ];
 
   // state for dropdown
@@ -41,9 +41,9 @@ export default function HomeScreen() {
 
   // sample notifications
   const notifications = [
-    { id: "1", title: "AI finished generating your resume" },
-    { id: "2", title: "Voice assistant is ready for new input" },
-    { id: "3", title: "New version available — tap to update" },
+    { id: "1", title: "Message successfully sent" },
+    { id: "2", title: "Error while sending message" },
+    { id: "3", title: "Message successfully sent" },
   ];
 
   return (
