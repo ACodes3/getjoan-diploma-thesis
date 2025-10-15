@@ -4,12 +4,12 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-    Linking,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Linking,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function About() {
@@ -49,14 +49,14 @@ export default function About() {
           </View>
 
           {/* App Info */}
-          <Text style={styles.appName}>Talk To Me</Text>
+          <Text style={styles.appName}>GetJoan Talk</Text>
           <Text style={styles.appVersion}>Version 1.0.0</Text>
 
           {/* Description */}
           <View style={styles.blurWrapper}>
             <BlurView intensity={70} tint="light" style={styles.descCard}>
               <Text style={styles.descText}>
-                <Text style={{ fontWeight: "700" }}>Talk To Me</Text> is your
+                <Text style={{ fontWeight: "700" }}>GetJoan Talk</Text> is your
                 companion app for seamless communication with your GetJoan
                 device. Use speech recognition or predefined quick messages to
                 send updates effortlessly — anytime, anywhere.

@@ -122,7 +122,7 @@ export default function HomeScreen() {
               <Text
                 style={[styles.highlight, { fontFamily: "GreatVibes-Regular" }]}
               >
-                Talk to Me
+                GetJoan Talk
               </Text>
             </Text>
             <Text style={styles.subtitle}>
@@ -297,14 +297,14 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   greeting: {
-    fontSize: 35,
+    fontSize: 28,
     fontWeight: "700",
     marginTop: 25,
     marginBottom: 4,
   },
   highlight: {
     color: "#FF69B4",
-    fontSize: 35,
+    fontSize: 33,
     fontFamily: "GreatVibes-Regular",
     letterSpacing: 1,
     textShadowColor: "rgba(255, 105, 180, 0.25)",
