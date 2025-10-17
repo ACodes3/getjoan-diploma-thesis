@@ -5,6 +5,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
+  Animated,
+  Easing,
   Image,
   SafeAreaView,
   StyleSheet,
@@ -27,17 +29,46 @@ export default function Microphone() {
   const audioRecordingRef = useRef(new Audio.Recording());
   const webAudioPermissionsRef = useRef<MediaStream | null>(null);
 
+  // === Animation setup ===
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const startPulse = () => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(scaleAnim, {
+          toValue: 1.15,
+          duration: 350,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleAnim, {
+          toValue: 1,
+          duration: 350,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  };
+
+  const stopPulse = () => {
+    scaleAnim.stopAnimation();
+    scaleAnim.setValue(1);
+  };
+
   const startRecording = async () => {
     if (isRecording || isTranscribing) return;
     try {
       await recordSpeech(
         audioRecordingRef,
-        setIsRecording, // recordSpeech should handle setIsRecording(true)
+        setIsRecording,
         !!webAudioPermissionsRef.current
       );
+      startPulse(); // start animation when recording starts
     } catch (e) {
       console.log("Record error:", e);
       setIsRecording(false);
+      stopPulse();
     }
   };
 
@@ -52,6 +83,7 @@ export default function Microphone() {
     }
 
     setIsRecording(false);
+    stopPulse(); // stop animation when recording stops
     setIsTranscribing(true);
     try {
       const text = await transcribeSpeech(audioRecordingRef);
@@ -98,9 +130,12 @@ export default function Microphone() {
         {/* === MAIN BUBBLE === */}
         <View style={styles.bubbleWrapper}>
           <View style={styles.bubbleShadow} />
-          <Image
+          <Animated.Image
             source={require("../../assets/images/bubble.png")}
-            style={styles.mainBubble}
+            style={[
+              styles.mainBubble,
+              { transform: [{ scale: scaleAnim }] }, // 👈 apply animated scale
+            ]}
             resizeMode="cover"
           />
         </View>
@@ -122,11 +157,7 @@ export default function Microphone() {
           <BlurView intensity={70} tint="light" style={styles.actionCard}>
             <View style={styles.actionTopRow}>
               <View style={styles.iconContainer}>
-                <MaterialIcons
-                  name="record-voice-over"
-                  size={20}
-                  color="#333"
-                />
+                <MaterialIcons name="record-voice-over" size={20} color="#333" />
               </View>
               <View style={styles.arrowContainer}>
                 <Feather name="arrow-up-right" size={20} color="#333" />
@@ -143,10 +174,7 @@ export default function Microphone() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[
-              styles.micButton,
-              { opacity: isTranscribing ? 0.5 : 1 },
-            ]}
+            style={[styles.micButton, { opacity: isTranscribing ? 0.5 : 1 }]}
             onPress={isRecording ? stopRecording : startRecording}
             disabled={isTranscribing}
           >
