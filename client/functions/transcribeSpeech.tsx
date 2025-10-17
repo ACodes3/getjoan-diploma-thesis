@@ -47,6 +47,7 @@ export const transcribeSpeech = async (
 
     const serverUrl = getApiBase();
 
+    console.log("Transcribing to:", `${serverUrl}/speech-to-text`);
     const resp = await fetch(`${serverUrl}/speech-to-text`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

@@ -1,20 +1,68 @@
 import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Audio } from "expo-av";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useRef, useState } from "react";
 import {
-    Image,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
+
+// === Your helper imports ===
+import { recordSpeech } from "@/functions/recordSpeech";
+import { transcribeSpeech } from "@/functions/transcribeSpeech";
+
 const BubbleImg = require("../../assets/images/bubble.png");
 
 export default function Microphone() {
   const router = useRouter();
+
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const audioRecordingRef = useRef(new Audio.Recording());
+  const webAudioPermissionsRef = useRef<MediaStream | null>(null);
+
+  const startRecording = async () => {
+    if (isRecording || isTranscribing) return;
+    try {
+      await recordSpeech(
+        audioRecordingRef,
+        setIsRecording, // recordSpeech should handle setIsRecording(true)
+        !!webAudioPermissionsRef.current
+      );
+    } catch (e) {
+      console.log("Record error:", e);
+      setIsRecording(false);
+    }
+  };
+
+  const stopRecording = async () => {
+    if (isTranscribing) return;
+
+    const status = await audioRecordingRef.current?.getStatusAsync();
+    console.log("Stop pressed. Status:", status);
+    if (!status?.isRecording) {
+      console.log("Stop ignored: not currently recording");
+      return;
+    }
+
+    setIsRecording(false);
+    setIsTranscribing(true);
+    try {
+      const text = await transcribeSpeech(audioRecordingRef);
+      console.log("🗣️ Transcription:", text || "(no text)");
+    } catch (error) {
+      console.log("Error during transcription:", error);
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
+
   return (
     <LinearGradient
       colors={["#f8e7f5", "#e9dcfa", "#f6e4ff"]}
@@ -43,7 +91,9 @@ export default function Microphone() {
         </View>
 
         {/* === TITLE === */}
-        <Text style={styles.title}>AI Voice Recognition</Text>
+        <Text style={styles.title}>
+          {isTranscribing ? "Transcribing..." : "AI Voice Recognition"}
+        </Text>
 
         {/* === MAIN BUBBLE === */}
         <View style={styles.bubbleWrapper}>
@@ -92,8 +142,19 @@ export default function Microphone() {
             <Ionicons name="sparkles-outline" size={26} color="#555" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.micButton}>
-            <Ionicons name="mic" size={34} color="#fff" />
+          <TouchableOpacity
+            style={[
+              styles.micButton,
+              { opacity: isTranscribing ? 0.5 : 1 },
+            ]}
+            onPress={isRecording ? stopRecording : startRecording}
+            disabled={isTranscribing}
+          >
+            <Ionicons
+              name={isRecording ? "stop" : "mic"}
+              size={34}
+              color="#fff"
+            />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.iconButton}>
@@ -114,7 +175,6 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
   },
 
-  // === HEADER ===
   header: {
     width: "90%",
     flexDirection: "row",
@@ -153,11 +213,7 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     color: "#222",
   },
-
-  // === TITLE ===
   title: { fontSize: 25, fontWeight: "700", color: "#111", marginTop: 25 },
-
-  // === MAIN BUBBLE ===
   bubbleWrapper: {
     justifyContent: "center",
     alignItems: "center",
@@ -175,15 +231,12 @@ const styles = StyleSheet.create({
     borderRadius: 200,
     backgroundColor: "rgba(255,255,255,0.3)",
   },
-
-  // === ACTION BUTTONS ===
   actionRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     width: "90%",
     marginBottom: 25,
   },
-
   actionCard: {
     flex: 1,
     borderRadius: 30,
@@ -194,14 +247,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.4)",
   },
-
   actionTopRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 10,
   },
-
   iconContainer: {
     width: 45,
     height: 45,
@@ -210,7 +261,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-
   arrowContainer: {
     width: 45,
     height: 45,
@@ -219,14 +269,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-
   actionTitle: {
     fontSize: 16,
     fontWeight: "500",
     color: "#111",
   },
-
-  // === BOTTOM CONTROLS ===
   bottomRow: {
     flexDirection: "row",
     alignItems: "center",
