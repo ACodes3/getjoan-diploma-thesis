@@ -8,12 +8,12 @@ import React, { useState } from "react";
 import {
   FlatList,
   Image,
+  Pressable,
   SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
+  View
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -53,7 +53,7 @@ export default function HomeScreen() {
       end={{ x: 1, y: 1 }}
       style={{ flex: 1 }}
     >
-      <TouchableWithoutFeedback onPress={() => setShowNotifications(false)}>
+      <Pressable style={{ flex: 1 }} onPress={() => setShowNotifications(false)}>
         <BlurView intensity={40} tint="light" style={{ flex: 1 }}>
           <SafeAreaView
             style={[styles.container, { paddingTop: insets.top + 10 }]}
@@ -215,7 +215,7 @@ export default function HomeScreen() {
             />
           </SafeAreaView>
         </BlurView>
-      </TouchableWithoutFeedback>
+      </Pressable>
     </LinearGradient>
   );
 }
