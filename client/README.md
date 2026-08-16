@@ -1,50 +1,72 @@
-# Welcome to your Expo app 👋
+# GetJoan Mobile Client
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Expo React Native application for the GetJoan system.
 
-## Get started
+The app provides:
+- Firebase authentication (login/register)
+- Manual message sending to Joan displays
+- Voice recording and speech-to-command flow
+- Notification and history views backed by Firebase Realtime Database
 
-1. Install dependencies
+## Tech Stack
 
-   ```bash
-   npm install
-   ```
+- Expo + React Native + TypeScript
+- Expo Router (file based navigation)
+- Firebase Auth and Realtime Database
 
-2. Start the app
+## Prerequisites
 
-   ```bash
-   npx expo start
-   ```
+- Node.js 18+
+- npm
+- Expo Go app or emulator/simulator
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Install
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Run
 
-## Learn more
+```bash
+npm run start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+Useful variants:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+npm run android
+npm run ios
+npm run web
+```
 
-## Join the community
+## API Configuration
 
-Join our community of developers creating universal apps.
+The app computes the backend base URL automatically in `functions/apiBase.ts`:
+- Android emulator: `http://10.0.2.2:4000`
+- iOS simulator: `http://localhost:4000`
+- Real devices: inferred from Metro host when possible
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Optional fallback env variable:
+
+- `EXPO_PUBLIC_API_BASE` (for example `http://192.168.1.20:4000`)
+
+## Scripts
+
+- `npm run start` - Start Expo dev server
+- `npm run android` - Start for Android
+- `npm run ios` - Start for iOS
+- `npm run web` - Start for web
+- `npm run lint` - Run linting
+- `npm run reset-project` - Reset scaffold files
+
+## Project Entry
+
+- App layout and auth gating: `app/_layout.tsx`
+- Main home screen: `app/(tabs)/index.tsx`
+- Voice helpers: `functions/recordSpeech.tsx`, `functions/transcribeSpeech.tsx`
+
+## Notes
+
+- This project currently uses Firebase configuration directly in source files.
+- Keep server and client on the same network for real-device testing.
