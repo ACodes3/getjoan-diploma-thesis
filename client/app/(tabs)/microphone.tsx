@@ -14,10 +14,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Toast from "react-native-toast-message";
 
 // === Your helper imports ===
 import { recordSpeech } from "@/functions/recordSpeech";
 import { transcribeSpeech } from "@/functions/transcribeSpeech";
+import { saveNotification } from "@/functions/saveNotifications";
+import { saveHistory } from "@/functions/saveHistory";
 
 const BubbleImg = require("../../assets/images/bubble.png");
 
@@ -58,38 +61,224 @@ export default function Microphone() {
 
   const startRecording = async () => {
     if (isRecording || isTranscribing) return;
+
     try {
       await recordSpeech(
         audioRecordingRef,
         setIsRecording,
         !!webAudioPermissionsRef.current
       );
-      startPulse(); // start animation when recording starts
-    } catch (e) {
-      console.log("Record error:", e);
+
+      startPulse();
+
+      Toast.show({
+        type: "info",
+        text1: "Recording started",
+        text2: "Speak clearly into your microphone.",
+        position: "top",
+        topOffset: 70,
+        visibilityTime: 2500,
+      });
+    } catch (error: any) {
+      console.log("Record error:", error);
+
       setIsRecording(false);
       stopPulse();
+
+      let message =
+        "Could not start the microphone. Please try again.";
+
+      if (
+        error?.message?.toLowerCase().includes("permission")
+      ) {
+        message =
+          "Microphone permission is required to record your voice.";
+      }
+
+      Toast.show({
+        type: "error",
+        text1: "Recording failed",
+        text2: message,
+        position: "top",
+        topOffset: 70,
+        visibilityTime: 3500,
+      });
+      await saveNotification(
+        "error",
+        "Recording failed",
+        message
+      );
+
+      await saveHistory(
+        "voice",
+        text
+      );
     }
   };
 
   const stopRecording = async () => {
     if (isTranscribing) return;
 
-    const status = await audioRecordingRef.current?.getStatusAsync();
-    console.log("Stop pressed. Status:", status);
-    if (!status?.isRecording) {
-      console.log("Stop ignored: not currently recording");
-      return;
-    }
-
-    setIsRecording(false);
-    stopPulse(); // stop animation when recording stops
-    setIsTranscribing(true);
     try {
-      const text = await transcribeSpeech(audioRecordingRef);
-      console.log("🗣️ Transcription:", text || "(no text)");
-    } catch (error) {
-      console.log("Error during transcription:", error);
+      const status =
+        await audioRecordingRef.current?.getStatusAsync();
+
+      console.log(
+        "Stop pressed. Status:",
+        status
+      );
+
+      if (!status?.isRecording) {
+        Toast.show({
+          type: "info",
+          text1: "Nothing to stop",
+          text2: "There is no active recording.",
+          position: "top",
+          topOffset: 70,
+          visibilityTime: 2500,
+        });
+
+        return;
+      }
+
+      setIsRecording(false);
+      stopPulse();
+      setIsTranscribing(true);
+
+      Toast.show({
+        type: "info",
+        text1: "Processing voice",
+        text2: "Your recording is being processed.",
+        position: "top",
+        topOffset: 70,
+        visibilityTime: 2500,
+      });
+
+      // This is now the SAFE predefined command
+      const commandText =
+        await transcribeSpeech(
+          audioRecordingRef
+        );
+
+      console.log(
+        "🗣️ Voice command:",
+        commandText || "(no command)"
+      );
+
+      // Nothing returned
+      if (
+        !commandText ||
+        !commandText.trim()
+      ) {
+        const noCommandMessage =
+          "No supported voice command was detected. Please try again.";
+
+        Toast.show({
+          type: "info",
+          text1: "Command not recognized",
+          text2: noCommandMessage,
+          position: "top",
+          topOffset: 70,
+          visibilityTime: 3500,
+        });
+
+        await saveNotification(
+          "info",
+          "Command not recognized",
+          noCommandMessage
+        );
+
+        return;
+      }
+
+      // ================================
+      // SUCCESS
+      // ================================
+
+      Toast.show({
+        type: "success",
+        text1: "Command sent",
+        text2: commandText,
+        position: "top",
+        topOffset: 70,
+        visibilityTime: 3000,
+      });
+
+      await saveNotification(
+        "success",
+        "Voice command sent",
+        commandText
+      );
+
+      await saveHistory(
+        "voice",
+        commandText
+      );
+
+    } catch (error: any) {
+      console.log(
+        "Error during voice processing:",
+        error
+      );
+
+      let errorMessage =
+        "Your voice command could not be processed.";
+
+      // Unknown / unsupported voice command
+      if (
+        error?.message?.includes("422") ||
+        error?.message?.includes(
+          "No supported voice command"
+        )
+      ) {
+        errorMessage =
+          "No supported voice command was detected. Please try a different phrase.";
+
+        Toast.show({
+          type: "info",
+          text1: "Command not recognized",
+          text2: errorMessage,
+          position: "top",
+          topOffset: 70,
+          visibilityTime: 3500,
+        });
+
+        await saveNotification(
+          "info",
+          "Command not recognized",
+          errorMessage
+        );
+
+        return;
+      }
+
+      // Network error
+      if (
+        error?.message?.includes(
+          "Network request failed"
+        ) ||
+        error?.message?.includes(
+          "Failed to fetch"
+        )
+      ) {
+        errorMessage =
+          "Could not connect to the server. Check your network connection.";
+      }
+
+      Toast.show({
+        type: "error",
+        text1: "Voice processing failed",
+        text2: errorMessage,
+        position: "top",
+        topOffset: 70,
+        visibilityTime: 4000,
+      });
+
+      await saveNotification(
+        "error",
+        "Voice processing failed",
+        errorMessage
+      );
     } finally {
       setIsTranscribing(false);
     }

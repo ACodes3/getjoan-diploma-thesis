@@ -1,9 +1,16 @@
+import { auth, db } from "@/firebase";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { useFonts } from "expo-font";
 import { LinearGradient } from "expo-linear-gradient";
 import { usePathname, useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+
+import {
+  onValue,
+  ref,
+  update,
+} from "firebase/database";
 
 import {
   FlatList,
@@ -17,34 +24,216 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+interface AppNotification {
+  id: string;
+  type: "success" | "error" | "info";
+  title: string;
+  message: string;
+  read: boolean;
+  createdAt: number;
+}
+
+interface HistoryItem {
+  id: string;
+  type: "manual" | "voice";
+  message: string;
+  createdAt: number;
+}
+
 export default function HomeScreen() {
-  let [fontsLoaded] = useFonts({
-    "GreatVibes-Regular": require("../../assets/fonts/GreatVibes-Regular.ttf"),
+  const [fontsLoaded] = useFonts({
+    "GreatVibes-Regular": require(
+      "../../assets/fonts/GreatVibes-Regular.ttf"
+    ),
   });
 
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const pathname = usePathname();
 
+  const user = auth.currentUser;
+
+  // === STATES ===
+  const [showNotifications, setShowNotifications] =
+    useState(false);
+
+  const [notifications, setNotifications] =
+    useState<AppNotification[]>([]);
+
+  const [chatHistory, setChatHistory] =
+    useState<HistoryItem[]>([]);
+
+  // === AVATAR ===
+  const avatarSeed =
+    user?.uid ||
+    user?.email ||
+    "GetJoanUser";
+
+  const avatarUrl =
+    `https://api.dicebear.com/10.x/lorelei/png?seed=${encodeURIComponent(
+      avatarSeed
+    )}&size=128`;
+
+  // === FIREBASE NOTIFICATIONS ===
+  useEffect(() => {
+    if (!user) {
+      setNotifications([]);
+      return;
+    }
+
+    const notificationsRef = ref(
+      db,
+      `notifications/${user.uid}`
+    );
+
+    const unsubscribe = onValue(
+      notificationsRef,
+      (snapshot) => {
+        const data = snapshot.val();
+
+        if (!data) {
+          setNotifications([]);
+          return;
+        }
+
+        const list: AppNotification[] =
+          Object.entries(data).map(
+            ([id, value]: any) => ({
+              id,
+              ...value,
+            })
+          );
+
+        // newest first
+        list.sort(
+          (a, b) =>
+            (b.createdAt || 0) -
+            (a.createdAt || 0)
+        );
+
+        setNotifications(list);
+      },
+      (error) => {
+        console.error(
+          "Notification read error:",
+          error
+        );
+
+        setNotifications([]);
+      }
+    );
+
+    return unsubscribe;
+  }, [user?.uid]);
+
+      // === FIREBASE HISTORY ===
+    useEffect(() => {
+      if (!user) {
+        setChatHistory([]);
+        return;
+      }
+
+      const historyRef = ref(
+        db,
+        `history/${user.uid}`
+      );
+
+      const unsubscribe = onValue(
+        historyRef,
+        (snapshot) => {
+          const data = snapshot.val();
+
+          if (!data) {
+            setChatHistory([]);
+            return;
+          }
+
+          const list: HistoryItem[] =
+            Object.entries(data).map(
+              ([id, value]: any) => ({
+                id,
+                ...value,
+              })
+            );
+
+          // newest first
+          list.sort(
+            (a, b) =>
+              (b.createdAt || 0) -
+              (a.createdAt || 0)
+          );
+
+          setChatHistory(list);
+        },
+        (error) => {
+          console.error(
+            "History read error:",
+            error
+          );
+
+          setChatHistory([]);
+        }
+      );
+
+      return unsubscribe;
+    }, [user?.uid]);
+
+  // === UNREAD COUNT ===
+  const unreadCount = notifications.filter(
+    (notification) => !notification.read
+  ).length;
+
+  // === OPEN NOTIFICATIONS ===
+  const handleNotificationsPress = async () => {
+    const opening = !showNotifications;
+
+    setShowNotifications(opening);
+
+    if (
+      !opening ||
+      !user ||
+      unreadCount === 0
+    ) {
+      return;
+    }
+
+    try {
+      const updatesToMake: Record<
+        string,
+        boolean
+      > = {};
+
+      notifications.forEach(
+        (notification) => {
+          if (!notification.read) {
+            updatesToMake[
+              `notifications/${user.uid}/${notification.id}/read`
+            ] = true;
+          }
+        }
+      );
+
+      if (
+        Object.keys(updatesToMake).length > 0
+      ) {
+        await update(
+          ref(db),
+          updatesToMake
+        );
+      }
+    } catch (error) {
+      console.error(
+        "Could not mark notifications as read:",
+        error
+      );
+    }
+  };
+
+  // IMPORTANT:
+  // This must come AFTER all hooks
   if (!fontsLoaded) {
     return null;
   }
-
-  const chatHistory = [
-    { id: "1", title: "I will be late - 15 minutes" },
-    { id: "2", title: "Need assistance - Running late" },
-    { id: "3", title: "I will be late - 30 minutes" },
-  ];
-
-  // state for dropdown
-  const [showNotifications, setShowNotifications] = useState(false);
-
-  // sample notifications
-  const notifications = [
-    { id: "1", title: "Message successfully sent" },
-    { id: "2", title: "Error while sending message" },
-    { id: "3", title: "Message successfully sent" },
-  ];
 
   return (
     <LinearGradient
@@ -63,13 +252,24 @@ export default function HomeScreen() {
               {/* Avatar */}
               <TouchableOpacity onPress={() => router.push("/profile")}>
                 <Image
-                  source={{ uri: "https://i.pravatar.cc/200" }}
+                  source={{ uri: avatarUrl }}
                   style={styles.profileImage}
                 />
               </TouchableOpacity>
 
               {/* Right Icons Group */}
               <View style={styles.rightIcons}>
+                {/* Devices Icon */}
+                <TouchableOpacity
+                  style={styles.iconCircle}
+                  onPress={() => router.push("/devices")}
+                >
+                  <Ionicons
+                    name="desktop-outline"
+                    size={24}
+                    color="#000"
+                  />
+                </TouchableOpacity>
                 {/* Documentation Icon */}
                 <TouchableOpacity
                   style={styles.iconCircle}
@@ -81,50 +281,103 @@ export default function HomeScreen() {
                 {/* Notifications Icon */}
                 <TouchableOpacity
                   style={styles.iconCircle}
-                  onPress={() => setShowNotifications(!showNotifications)}
+                  onPress={handleNotificationsPress}
                 >
                   <Ionicons
                     name="notifications-outline"
                     size={24}
                     color="#000"
                   />
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>5</Text>
-                  </View>
+                  {unreadCount > 0 && (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>
+                    {unreadCount > 9
+                      ? "9+"
+                      : unreadCount}
+                  </Text>
+                </View>
+)}
                 </TouchableOpacity>
                 {/* Dropdown */}
                 {showNotifications && (
-                  <BlurView intensity={80} tint="light" style={styles.dropdown}>
-                    {notifications.map((item) => (
-                      <TouchableOpacity
-                        key={item.id}
-                        style={styles.notificationItem}
-                      >
-                        <Ionicons
-                          name="alert-circle-outline"
-                          size={18}
-                          color="#333"
-                          style={{ marginRight: 8 }}
-                        />
-                        <Text style={styles.notificationText}>
-                          {item.title}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </BlurView>
-                )}
+                <BlurView
+                  intensity={80}
+                  tint="light"
+                  style={styles.dropdown}
+                >
+                  {notifications.length === 0 ? (
+                    <View style={styles.emptyNotification}>
+                      <Ionicons
+                        name="notifications-off-outline"
+                        size={22}
+                        color="#777"
+                      />
+
+                      <Text style={styles.emptyNotificationText}>
+                        No notifications
+                      </Text>
+                    </View>
+                  ) : (
+                    notifications
+                      .slice(0, 5)
+                      .map((item) => (
+                        <TouchableOpacity
+                          key={item.id}
+                          style={styles.notificationItem}
+                        >
+                          <Ionicons
+                            name={
+                              item.type === "success"
+                                ? "checkmark-circle-outline"
+                                : item.type === "error"
+                                ? "alert-circle-outline"
+                                : "information-circle-outline"
+                            }
+                            size={20}
+                            color={
+                              item.type === "success"
+                                ? "#27ae60"
+                                : item.type === "error"
+                                ? "#c0392b"
+                                : "#65058a"
+                            }
+                            style={{ marginRight: 10 }}
+                          />
+
+                          <View style={{ flex: 1 }}>
+                            <Text style={styles.notificationTitle}>
+                              {item.title}
+                            </Text>
+
+                            {!!item.message && (
+                              <Text
+                                style={styles.notificationText}
+                                numberOfLines={2}
+                              >
+                                {item.message}
+                              </Text>
+                            )}
+                          </View>
+
+                          {!item.read && (
+                            <View style={styles.unreadDot} />
+                          )}
+                        </TouchableOpacity>
+                      ))
+                  )}
+                </BlurView>
+              )}
               </View>
             </View>
 
             {/* Greeting */}
             <Text style={styles.greeting}>
               Welcome to{" "}
-              <Text
-                style={[styles.highlight, { fontFamily: "GreatVibes-Regular" }]}
-              >
+              <Text style={styles.highlight}>
                 GetJoan Talk
               </Text>
             </Text>
+
             <Text style={styles.subtitle}>
               Your Smart Voice & Message Assistant
             </Text>
@@ -200,11 +453,31 @@ export default function HomeScreen() {
             </View>
 
             <FlatList
-              data={chatHistory}
+              data={chatHistory.slice(0, 3)}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
-                <TouchableOpacity style={styles.historyItem}>
-                  <Text style={styles.historyText}>{item.title}</Text>
+                <TouchableOpacity
+                  style={styles.historyItem}
+                >
+                  <View style={styles.historyLeft}>
+                    <Ionicons
+                      name={
+                        item.type === "voice"
+                          ? "mic-outline"
+                          : "chatbubble-outline"
+                      }
+                      size={18}
+                      color="#65058a"
+                    />
+
+                    <Text
+                      style={styles.historyText}
+                      numberOfLines={1}
+                    >
+                      {item.message}
+                    </Text>
+                  </View>
+
                   <Ionicons
                     name="arrow-forward-outline"
                     size={18}
@@ -212,6 +485,19 @@ export default function HomeScreen() {
                   />
                 </TouchableOpacity>
               )}
+              ListEmptyComponent={
+                <View style={styles.emptyHistory}>
+                  <Ionicons
+                    name="chatbubbles-outline"
+                    size={24}
+                    color="#777"
+                  />
+
+                  <Text style={styles.emptyHistoryText}>
+                    No messages yet
+                  </Text>
+                </View>
+              }
             />
           </SafeAreaView>
         </BlurView>
@@ -296,25 +582,30 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "700",
   },
+
   greeting: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: "700",
+    color: "#111",
     marginTop: 25,
     marginBottom: 4,
   },
+
   highlight: {
-    color: "#FF69B4",
-    fontSize: 33,
     fontFamily: "GreatVibes-Regular",
+    fontWeight: "400", // IMPORTANT
+    color: "#FF69B4",
+    fontSize: 35,
     letterSpacing: 1,
-    textShadowColor: "rgba(255, 105, 180, 0.25)",
+    textShadowColor: "rgba(255,105,180,0.25)",
     textShadowOffset: { width: 0, height: 3 },
     textShadowRadius: 6,
   },
+
   subtitle: {
-    fontSize: 20,
-    color: "#222",
-    fontWeight: "700",
+    fontSize: 16,
+    color: "#555",
+    fontWeight: "500",
     marginBottom: 10,
   },
   tabs: {
@@ -392,8 +683,30 @@ const styles = StyleSheet.create({
   },
   historyText: {
     flex: 1,
+    marginLeft: 10,
     marginRight: 10,
     fontSize: 14,
+    color: "#222",
+  },
+
+  historyLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+
+  emptyHistory: {
+    backgroundColor: "rgba(255,255,255,0.45)",
+    borderRadius: 16,
+    paddingVertical: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  emptyHistoryText: {
+    marginTop: 6,
+    fontSize: 14,
+    color: "#777",
   },
   dropdown: {
     position: "absolute",
@@ -412,18 +725,44 @@ const styles = StyleSheet.create({
     zIndex: 50,
   },
 
+  notificationTitle: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#222",
+    marginBottom: 2,
+  },
+
   notificationItem: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 10,
+    paddingVertical: 12,
     paddingHorizontal: 14,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.3)",
+    borderBottomColor: "rgba(0,0,0,0.05)",
   },
 
   notificationText: {
-    flex: 1,
-    color: "#222",
+    fontSize: 12,
+    color: "#666",
+  },
+
+  unreadDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#FF4D67",
+    marginLeft: 8,
+  },
+
+  emptyNotification: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 22,
+  },
+
+  emptyNotificationText: {
+    color: "#777",
     fontSize: 14,
+    marginTop: 6,
   },
 });

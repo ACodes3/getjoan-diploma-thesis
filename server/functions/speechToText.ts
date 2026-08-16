@@ -1,5 +1,10 @@
 // speechToText.ts
 import { Request, Response } from "express";
+import { ref, set } from "firebase/database";
+import { db } from "../firebase/db.js";
+import { speechToCommand } from "./speechToCommand.js";
+
+
 const AAI_BASE = "https://api.assemblyai.com/v2";
 const AAI_KEY = process.env.ASSEMBLYAI_API_KEY as string;
 
@@ -55,9 +60,62 @@ export const speechToText = async (req: Request, res: Response) => {
       if (!r.ok) return res.status(r.status).send(await r.text());
       const tr = await r.json();
 
-      if (tr.status === "completed") {
-        return res.send({ id: tr.id, text: tr.text, confidence: tr.confidence, words: tr.words });
+    if (tr.status === "completed") {
+      console.log("ASSEMBLYAI TRANSCRIPT:", tr.text);
+
+      // Convert raw transcription into a predefined command
+      const command = speechToCommand(tr.text || "");
+
+      // Nothing recognized
+      if (!command) {
+        console.log("NO SUPPORTED COMMAND FOUND");
+
+        return res.status(422).json({
+          id: tr.id,
+          transcript: tr.text,
+          command: null,
+          error: "No supported voice command was detected.",
+        });
       }
+
+      console.log("COMMAND DETECTED:", command);
+
+      // Send ONLY the predefined command to Firebase / Joan
+      try {
+        await set(
+          ref(db, "message"),
+          command.message
+        );
+
+        console.log(
+          "FIREBASE COMMAND WRITE SUCCESS:",
+          command.message
+        );
+      } catch (firebaseError) {
+        console.error(
+          "FIREBASE WRITE ERROR:",
+          firebaseError
+        );
+
+        return res.status(500).json({
+          error:
+            "Command was recognized but could not be sent to Joan.",
+        });
+      }
+
+      // Send detected command back to the mobile app
+      return res.json({
+        id: tr.id,
+        transcript: tr.text,
+        confidence: tr.confidence,
+
+        command: {
+          category: command.category,
+          option: command.option,
+          message: command.message,
+        },
+      });
+    }
       if (tr.status === "error") {
         return res.status(500).send(`Transcription error: ${tr.error}`);
       }

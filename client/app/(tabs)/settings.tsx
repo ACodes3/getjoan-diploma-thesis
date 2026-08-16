@@ -5,12 +5,15 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   SafeAreaView,
+  ScrollView,
   StyleSheet,
   Switch,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { signOut } from "firebase/auth";
+import { auth } from "@/firebase";
 
 export default function Settings() {
   const router = useRouter();
@@ -18,6 +21,14 @@ export default function Settings() {
   const [notifications, setNotifications] = useState(true);
   const { lang } = useLocalSearchParams();
   const [selectedLanguage, setSelectedLanguage] = useState(lang || "English");
+  const handleLogout = async () => {
+  try {
+    await signOut(auth);
+    console.log("✅ User logged out");
+  } catch (error) {
+    console.error("❌ Logout error:", error);
+  }
+};
 
   return (
     <LinearGradient
@@ -38,7 +49,10 @@ export default function Settings() {
           <Text style={styles.headerTitle}>Settings</Text>
           <View style={{ width: 40 }} />
         </View>
-
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
         {/* === SETTINGS OPTIONS === */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Preferences</Text>
@@ -156,7 +170,32 @@ export default function Settings() {
               </TouchableOpacity>
             </BlurView>
           </View>
+          {/* Logout */}
+          <View style={styles.settingWrapper}>
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onPress={handleLogout}
+            >
+              <BlurView
+                intensity={60}
+                tint="light"
+                style={styles.settingCard}
+              >
+                <View style={styles.settingLeft}>
+                  <Ionicons
+                    name="log-out-outline"
+                    size={22}
+                    color="#c0392b"
+                  />
+                  <Text style={styles.logoutText}>
+                    Log out
+                  </Text>
+                </View>
+              </BlurView>
+            </TouchableOpacity>
+          </View>
         </View>
+        </ScrollView>
       </SafeAreaView>
     </LinearGradient>
   );
@@ -237,5 +276,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+  },
+  // == Logout ==
+  logoutText: {
+    marginLeft: 12,
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#c0392b",
   },
 });

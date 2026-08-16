@@ -10,6 +10,10 @@ import {
     TouchableOpacity,
     View
 } from "react-native";
+import Toast from "react-native-toast-message";
+import { getApiBase } from "../../functions/apiBase.ts";
+import { saveNotification } from "../../functions/saveNotifications";
+import { saveHistory } from "../../functions/saveHistory";
 
 export default function Messages() {
   const router = useRouter();
@@ -41,12 +45,100 @@ export default function Messages() {
     setStep(3);
   };
 
-  const handleSend = () => {
-    if (!selectedCategory || !selectedOption) return;
+  const handleSend = async () => {
+    if (!selectedCategory || !selectedOption) {
+      Toast.show({
+        type: "info",
+        text1: "Message not ready",
+        text2: "Please select a category and an option first.",
+        position: "top",
+        topOffset: 70,
+        visibilityTime: 3000,
+      });
+
+      return;
+    }
+
     const message = `${selectedCategory} — ${selectedOption}`;
-    console.log("📤 Sending to GetJoan:", message);
-    // TODO: send to device here
-    router.back();
+    const apiBase = getApiBase();
+
+    try {
+      console.log("📤 Sending to GetJoan:", message);
+      console.log("🌐 API base:", apiBase);
+
+      const response = await fetch(`${apiBase}/message`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+
+        throw new Error(
+          `Server ${response.status}: ${errorText}`
+        );
+      }
+
+      console.log("✅ Message sent successfully");
+
+      Toast.show({
+        type: "success",
+        text1: "Message sent",
+        text2: "Your message was successfully sent to Joan.",
+        position: "top",
+        topOffset: 70,
+        visibilityTime: 3000,
+      });
+
+      await saveNotification(
+        "success",
+        "Message sent",
+        message
+      );
+      await saveHistory(
+        "manual",
+        message
+      );
+
+      router.back();
+    } catch (error: any) {
+      console.error(
+        "❌ Failed to send message:",
+        error
+      );
+
+      let message =
+        "Your message could not be sent to Joan.";
+
+      if (
+        error?.message?.includes("Network request failed") ||
+        error?.message?.includes("Failed to fetch")
+      ) {
+        message =
+          "Could not connect to the server. Check your connection.";
+      }
+
+      Toast.show({
+        type: "error",
+        text1: "Message failed",
+        text2: message,
+        position: "top",
+        topOffset: 70,
+        visibilityTime: 3500,
+      });
+      await saveNotification(
+        "error",
+        "Message failed",
+        "The message could not be sent to Joan."
+      );
+      await saveHistory(
+        "manual",
+        message
+      );
+    }
   };
 
   return (
