@@ -5,28 +5,27 @@ import { useRouter } from "expo-router";
 import Toast from "react-native-toast-message";
 
 import {
-  onValue,
-  ref,
-  update,
+    onValue,
+    ref,
+    update,
 } from "firebase/database";
 
 import {
-  updateProfile,
+    updateProfile,
 } from "firebase/auth";
 
 import React, { useEffect, useState } from "react";
 
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Image,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 
 import { auth, db } from "@/firebase";
@@ -301,7 +300,7 @@ export default function Profile() {
       ]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={{ flex: 1 }}
+      style={{ flex: 1, padding: 12 }}
     >
       <SafeAreaView style={styles.container}>
         {/* === HEADER === */}
@@ -559,8 +558,9 @@ export default function Profile() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 18,
     paddingTop: 40,
+    paddingBottom: 24,
   },
 
   loadingContainer: {

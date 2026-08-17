@@ -4,12 +4,12 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-  Linking,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Linking,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 export default function About() {
@@ -24,7 +24,7 @@ export default function About() {
       colors={["#f8e7f5", "#e9dcfa", "#f6e4ff"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={{ flex: 1 }}
+      style={{ flex: 1, padding: 12 }}
     >
       <SafeAreaView style={styles.container}>
         {/* === HEADER === */}
@@ -97,8 +97,9 @@ export default function About() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 18,
     paddingTop: 40,
+    paddingBottom: 24,
   },
 
   // === HEADER ===

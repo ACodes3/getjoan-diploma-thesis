@@ -5,22 +5,22 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
-  Animated,
-  Easing,
-  Image,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Animated,
+    Easing,
+    Image,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Toast from "react-native-toast-message";
 
 // === Your helper imports ===
 import { recordSpeech } from "@/functions/recordSpeech";
-import { transcribeSpeech } from "@/functions/transcribeSpeech";
-import { saveNotification } from "@/functions/saveNotifications";
 import { saveHistory } from "@/functions/saveHistory";
+import { saveNotification } from "@/functions/saveNotifications";
+import { transcribeSpeech } from "@/functions/transcribeSpeech";
 
 const BubbleImg = require("../../assets/images/bubble.png");
 
@@ -287,7 +287,7 @@ export default function Microphone() {
   return (
     <LinearGradient
       colors={["#f8e7f5", "#e9dcfa", "#f6e4ff"]}
-      style={styles.container}
+      style={[styles.container, { padding: 12 }]}
     >
       <SafeAreaView style={styles.inner}>
         {/* === HEADER === */}
@@ -389,7 +389,9 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 40,
+    paddingHorizontal: 18,
+    paddingTop: 40,
+    paddingBottom: 24,
   },
 
   header: {

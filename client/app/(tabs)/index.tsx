@@ -240,12 +240,18 @@ export default function HomeScreen() {
       colors={["#f8e7f5", "#e9dcfa", "#f6e4ff"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={{ flex: 1 }}
+      style={{ flex: 1, padding: 12 }}
     >
       <Pressable style={{ flex: 1 }} onPress={() => setShowNotifications(false)}>
         <BlurView intensity={40} tint="light" style={{ flex: 1 }}>
           <SafeAreaView
-            style={[styles.container, { paddingTop: insets.top + 10 }]}
+            style={[
+              styles.container,
+              {
+                paddingTop: insets.top + 10,
+                paddingBottom: insets.bottom + 18,
+              },
+            ]}
           >
             {/* Header */}
             <View style={styles.header}>
@@ -300,11 +306,7 @@ export default function HomeScreen() {
                 </TouchableOpacity>
                 {/* Dropdown */}
                 {showNotifications && (
-                <BlurView
-                  intensity={80}
-                  tint="light"
-                  style={styles.dropdown}
-                >
+                <View style={styles.dropdown}>
                   {notifications.length === 0 ? (
                     <View style={styles.emptyNotification}>
                       <Ionicons
@@ -365,7 +367,7 @@ export default function HomeScreen() {
                         </TouchableOpacity>
                       ))
                   )}
-                </BlurView>
+                </View>
               )}
               </View>
             </View>
@@ -526,19 +528,24 @@ const ActionButton: React.FC<ActionButtonProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 18,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginTop: 10,
+    position: "relative",
+    zIndex: 1,
   },
 
   rightIcons: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10, // or use marginRight on children if gap not supported
+    gap: 10,
+    position: "relative",
+    zIndex: 50,
+    overflow: "visible",
   },
 
   iconCircle: {
@@ -715,14 +722,15 @@ const styles = StyleSheet.create({
     width: 250,
     borderRadius: 20,
     overflow: "hidden",
-    backgroundColor: "rgba(255, 255, 255, 0.92)",
+    backgroundColor: "#f7f1f6",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.3)",
+    borderColor: "rgba(0,0,0,0.06)",
     shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    zIndex: 50,
+    shadowOpacity: 0.15,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
+    zIndex: 999,
+    elevation: 999,
   },
 
   notificationTitle: {

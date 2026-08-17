@@ -2,13 +2,13 @@ import { initializeApp } from "firebase/app";
 import { getDatabase, onValue, ref } from "firebase/database";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyA1-zeqXV6dgctpIqk0EudFGirpYJGhI20",
-  authDomain: "get-joan-message.firebaseapp.com",
-  databaseURL: "https://get-joan-message-default-rtdb.firebaseio.com",
-  projectId: "get-joan-message",
-  storageBucket: "get-joan-message.firebasestorage.app",
-  messagingSenderId: "822822620600",
-  appId: "1:822822620600:web:034d8a4996a7696a50134d"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 const app = initializeApp(firebaseConfig);

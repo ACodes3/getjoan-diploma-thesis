@@ -1,19 +1,19 @@
+import { auth } from "@/firebase";
 import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { signOut } from "firebase/auth";
 import React, { useState } from "react";
 import {
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TouchableOpacity,
-  View,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Switch,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { signOut } from "firebase/auth";
-import { auth } from "@/firebase";
 
 export default function Settings() {
   const router = useRouter();
@@ -35,7 +35,7 @@ export default function Settings() {
       colors={["#f8e7f5", "#e9dcfa", "#f6e4ff"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={{ flex: 1 }}
+      style={{ flex: 1, padding: 12 }}
     >
       <SafeAreaView style={styles.container}>
         {/* === HEADER === */}
@@ -204,8 +204,9 @@ export default function Settings() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 18,
     paddingTop: 40,
+    paddingBottom: 24,
   },
 
   // === HEADER ===

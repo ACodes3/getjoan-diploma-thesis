@@ -4,22 +4,22 @@ import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import {
-  onValue,
-  ref,
-  remove,
+    onValue,
+    ref,
+    remove,
 } from "firebase/database";
 import React, {
-  useEffect,
-  useState,
+    useEffect,
+    useState,
 } from "react";
 import {
-  ActivityIndicator,
-  FlatList,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    FlatList,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Toast from "react-native-toast-message";
 
@@ -184,7 +184,7 @@ export default function History() {
       ]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={{ flex: 1 }}
+      style={{ flex: 1, padding: 12 }}
     >
       <SafeAreaView
         style={styles.container}
@@ -362,8 +362,9 @@ export default function History() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 18,
     paddingTop: 40,
+    paddingBottom: 24,
   },
 
   // === HEADER ===

@@ -43,7 +43,7 @@ function App() {
 
   /* Weather */
   useEffect(() => {
-    const API_KEY = "aed373fe334de33e80ec4801a72280ad"; // 🔑 replace
+    const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY;
     const CITY = "Ljubljana"; // change if needed
 
     fetch(

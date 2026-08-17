@@ -5,12 +5,12 @@ import { useRouter } from "expo-router";
 import React, { useState } from "react";
 
 import {
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 interface Device {
@@ -46,7 +46,7 @@ export default function Devices() {
       colors={["#f8e7f5", "#e9dcfa", "#f6e4ff"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={styles.gradient}
+      style={[styles.gradient, { padding: 12 }]}
     >
       <SafeAreaView style={styles.container}>
         {/* HEADER */}
@@ -236,8 +236,9 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 18,
     paddingTop: 40,
+    paddingBottom: 24,
   },
 
   scrollContent: {

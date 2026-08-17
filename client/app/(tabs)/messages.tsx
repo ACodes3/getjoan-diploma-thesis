@@ -12,8 +12,8 @@ import {
 } from "react-native";
 import Toast from "react-native-toast-message";
 import { getApiBase } from "../../functions/apiBase.ts";
-import { saveNotification } from "../../functions/saveNotifications";
 import { saveHistory } from "../../functions/saveHistory";
+import { saveNotification } from "../../functions/saveNotifications";
 
 export default function Messages() {
   const router = useRouter();
@@ -146,7 +146,7 @@ export default function Messages() {
       colors={["#f8e7f5", "#e9dcfa", "#f6e4ff"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={{ flex: 1 }}
+      style={{ flex: 1, padding: 12 }}
     >
       <SafeAreaView style={styles.container}>
         {/* === HEADER === */}
@@ -265,8 +265,9 @@ export default function Messages() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 18,
     paddingTop: 40,
+    paddingBottom: 24,
   },
 
   // === HEADER ===
