@@ -5,12 +5,12 @@ import { useRouter } from "expo-router";
 import React, { useState } from "react";
 
 import {
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 interface Device {
@@ -26,7 +26,7 @@ export default function Devices() {
 
   const [devices] = useState<Device[]>([
     {
-      id: "JOAN-001",
+      id: "36001a00-1851-3739-3536-0000000000",
       name: "Main Office Joan",
       model: "Joan 6",
       location: "Main Office",
@@ -185,10 +185,16 @@ export default function Devices() {
                 <TouchableOpacity
                   style={styles.manageButton}
                   onPress={() =>
-                    console.log(
-                      "Selected:",
-                      device.id
-                    )
+                    router.push({
+                      pathname: "/device",
+                      params: {
+                        id: device.id,
+                        name: device.name,
+                        model: device.model,
+                        location: device.location,
+                        status: device.status,
+                      },
+                    })
                   }
                 >
                   <Text style={styles.manageText}>
@@ -209,9 +215,7 @@ export default function Devices() {
           <TouchableOpacity
             style={styles.addButton}
             activeOpacity={0.85}
-            onPress={() =>
-              console.log("Add device")
-            }
+            onPress={() => router.push("/add-device")}
           >
             <Ionicons
               name="add-circle-outline"
