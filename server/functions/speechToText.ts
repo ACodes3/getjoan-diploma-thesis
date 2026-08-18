@@ -13,6 +13,11 @@ export const speechToText = async (req: Request, res: Response) => {
     const { audioBase64, audioUrl, config } = req.body || {};
     const languageCode = config?.languageCode || "en";
 
+    console.log("[server speechToText] received body keys:", Object.keys(req.body || {}));
+    console.log("[server speechToText] has audioBase64:", !!audioBase64, audioBase64?.length || 0);
+    console.log("[server speechToText] has audioUrl:", !!audioUrl);
+    console.log("[server speechToText] assembly key present:", !!AAI_KEY);
+
     if (!audioBase64 && !audioUrl) {
       return res.status(400).send("Provide audioBase64 or audioUrl");
     }
@@ -22,13 +27,16 @@ export const speechToText = async (req: Request, res: Response) => {
     let audio_url = audioUrl as string | undefined;
     if (audioBase64) {
       const bytes = Buffer.from(audioBase64, "base64");
+      console.log("[server speechToText] sending upload to AssemblyAI, bytes:", bytes.length);
       const up = await fetch(`${AAI_BASE}/upload`, {
         method: "POST",
         headers: { Authorization: AAI_KEY },
         body: bytes,
       });
-      if (!up.ok) return res.status(up.status).send(await up.text());
-      const ujson = await up.json(); // { upload_url }
+      const uploadText = await up.text();
+      console.log("[server speechToText] upload status:", up.status, uploadText);
+      if (!up.ok) return res.status(up.status).send(uploadText);
+      const ujson = await JSON.parse(uploadText);
       audio_url = ujson.upload_url;
     }
 
@@ -36,19 +44,21 @@ export const speechToText = async (req: Request, res: Response) => {
     const create = await fetch(`${AAI_BASE}/transcript`, {
       method: "POST",
       headers: {
-        Authorization: AAI_KEY,          // NOTE: no "Bearer"
+        Authorization: AAI_KEY,
         "Content-Type": "application/json",
         Accept: "application/json",
       },
       body: JSON.stringify({
         audio_url,
-        language_code: languageCode,     // e.g., "en", "sl", "de"
+        language_code: languageCode,
         punctuate: true,
         format_text: true,
       }),
     });
-    if (!create.ok) return res.status(create.status).send(await create.text());
-    const { id } = await create.json();
+    const createText = await create.text();
+    console.log("[server speechToText] create transcript status:", create.status, createText);
+    if (!create.ok) return res.status(create.status).send(createText);
+    const { id } = JSON.parse(createText);
 
     // Poll
     const start = Date.now();

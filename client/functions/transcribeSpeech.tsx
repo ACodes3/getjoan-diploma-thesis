@@ -52,44 +52,51 @@ export const transcribeSpeech = async (
 
     const serverUrl =
       getApiBase();
+    const requestUrl = `${serverUrl}/speech-to-text`;
 
     console.log(
-      "Transcribing to:",
-      `${serverUrl}/speech-to-text`
+      "[transcribeSpeech] serverUrl:",
+      serverUrl
+    );
+    console.log(
+      "[transcribeSpeech] requestUrl:",
+      requestUrl
+    );
+    console.log(
+      "[transcribeSpeech] audio length:",
+      audioBase64.length
     );
 
-    const resp = await fetch(
-      `${serverUrl}/speech-to-text`,
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type":
-            "application/json",
+    const resp = await fetch(requestUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        audioBase64,
+        config: {
+          languageCode: "en",
         },
+      }),
+    });
 
-        body: JSON.stringify({
-          audioBase64,
-
-          config: {
-            languageCode: "en",
-          },
-        }),
-      }
+    const responseText = await resp.text();
+    console.log(
+      "[transcribeSpeech] backend status:",
+      resp.status
+    );
+    console.log(
+      "[transcribeSpeech] backend raw response:",
+      responseText
     );
 
-    // Backend returned an error
     if (!resp.ok) {
-      const msg =
-        await resp.text();
-
       throw new Error(
-        `Backend failed: ${resp.status} ${msg}`
+        `Backend failed: ${resp.status} ${responseText}`
       );
     }
 
-    const data =
-      await resp.json();
+    const data = JSON.parse(responseText);
 
     console.log(
       "🔥 BACKEND RESPONSE:",
