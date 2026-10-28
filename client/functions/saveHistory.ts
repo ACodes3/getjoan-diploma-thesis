@@ -25,10 +25,10 @@ export async function saveHistory(
       createdAt: Date.now(),
     });
 
-    console.log("📚 History saved:", message);
+    console.log("History saved:", message);
   } catch (error) {
     console.error(
-      "❌ Could not save history:",
+      "Could not save history:",
       error
     );
   }

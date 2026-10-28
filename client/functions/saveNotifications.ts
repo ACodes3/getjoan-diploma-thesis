@@ -31,10 +31,10 @@ export async function saveNotification(
       createdAt: Date.now(),
     });
 
-    console.log("🔔 Notification saved:", title);
+    console.log("Notification saved:", title);
   } catch (error) {
     console.error(
-      "❌ Could not save notification:",
+      "Could not save notification:",
       error
     );
   }

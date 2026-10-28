@@ -1,8 +1,8 @@
 import "dotenv/config";
 import express, { Request, Response } from "express";
-import { speechToText } from "./functions/speechToText.js";
 import { ref, set } from "firebase/database";
 import { db } from "./firebase/db.js";
+import { speechToText } from "./functions/speechToText.js";
 
 const port = process.env.PORT || 4000;
 
@@ -28,7 +28,7 @@ app.post("/message", async (req: Request, res: Response) => {
 
     await set(ref(db, "message"), message);
 
-    console.log("📤 Manual message sent to Firebase:", message);
+    console.log("Manual message sent to Firebase:", message);
 
     return res.json({
       success: true,

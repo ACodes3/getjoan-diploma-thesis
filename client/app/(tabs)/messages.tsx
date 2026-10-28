@@ -4,11 +4,11 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
 import Toast from "react-native-toast-message";
 import { getApiBase } from "../../functions/apiBase.ts";
@@ -63,8 +63,8 @@ export default function Messages() {
     const apiBase = getApiBase();
 
     try {
-      console.log("📤 Sending to GetJoan:", message);
-      console.log("🌐 API base:", apiBase);
+      console.log("Sending to GetJoan:", message);
+      console.log("API base:", apiBase);
 
       const response = await fetch(`${apiBase}/message`, {
         method: "POST",
@@ -82,7 +82,7 @@ export default function Messages() {
         );
       }
 
-      console.log("✅ Message sent successfully");
+      console.log("Message sent successfully");
 
       Toast.show({
         type: "success",
@@ -106,7 +106,7 @@ export default function Messages() {
       router.back();
     } catch (error: any) {
       console.error(
-        "❌ Failed to send message:",
+        "Failed to send message:",
         error
       );
 

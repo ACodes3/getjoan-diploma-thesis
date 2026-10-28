@@ -160,7 +160,7 @@ export default function Register() {
         createdAt: new Date().toISOString(),
         });
 
-        console.log("✅ Account created:", user.uid);
+        console.log("Account created:", user.uid);
 
         // === SUCCESS ===
         Toast.show({

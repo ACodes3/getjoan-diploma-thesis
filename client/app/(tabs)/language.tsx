@@ -4,12 +4,12 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    FlatList,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  FlatList,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function LanguageScreen() {
@@ -31,7 +31,7 @@ export default function LanguageScreen() {
 
   const handleSelect = (lang: string) => {
     setSelected(lang);
-    // ✅ Navigate back to settings with language as a query param
+    // Navigate back to settings with language as a query param
     setTimeout(() => {
       router.push(`/settings?lang=${encodeURIComponent(lang)}`);
     }, 200);

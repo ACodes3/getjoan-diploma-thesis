@@ -99,7 +99,7 @@ export const transcribeSpeech = async (
     const data = JSON.parse(responseText);
 
     console.log(
-      "🔥 BACKEND RESPONSE:",
+      "BACKEND RESPONSE:",
       data
     );
 
@@ -107,7 +107,7 @@ export const transcribeSpeech = async (
       data?.command?.message;
 
     console.log(
-      "🔥 COMMAND MESSAGE:",
+      "COMMAND MESSAGE:",
       commandMessage
     );
 

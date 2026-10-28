@@ -5,14 +5,14 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
-    Animated,
-    Easing,
-    Image,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Animated,
+  Easing,
+  Image,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Toast from "react-native-toast-message";
 
@@ -161,7 +161,7 @@ export default function Microphone() {
         );
 
       console.log(
-        "🗣️ Voice command:",
+        "Voice command:",
         commandText || "(no command)"
       );
 
@@ -323,7 +323,7 @@ export default function Microphone() {
             source={require("../../assets/images/bubble.png")}
             style={[
               styles.mainBubble,
-              { transform: [{ scale: scaleAnim }] }, // 👈 apply animated scale
+              { transform: [{ scale: scaleAnim }] }, // apply animated scale
             ]}
             resizeMode="cover"
           />
