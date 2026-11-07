@@ -176,3 +176,7 @@ This repository documents an experimental approach to workplace communication us
 - [Firebase](https://firebase.google.com/) — authentication and real-time data services
 
 Joan and other third-party product names belong to their respective owners.
+
+## Showcase
+Watch a demonstration of the complete system, including the development environment, mobile app, and the device.
+[Watch the project showcase](https://drive.google.com/file/d/1ls9AfhsADiUOqGrxvLMXOWlhT4n-7Dyr/view?usp=sharing)

@@ -111,7 +111,7 @@ export default function Microphone() {
 
       await saveHistory(
         "voice",
-        text
+        message
       );
     }
   };

@@ -11,7 +11,7 @@ import {
   View
 } from "react-native";
 import Toast from "react-native-toast-message";
-import { getApiBase } from "../../functions/apiBase.ts";
+import { getApiBase } from "../../functions/apiBase";
 import { saveHistory } from "../../functions/saveHistory";
 import { saveNotification } from "../../functions/saveNotifications";
 

@@ -235,6 +235,9 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: 30,
   },
+  scrollContent: {
+    paddingBottom: 24,
+  },
   sectionTitle: {
     fontSize: 16,
     fontWeight: "600",
